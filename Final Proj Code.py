@@ -7,8 +7,7 @@ import matplotlib.pyplot as plt
 
 
 ###########################################
-# Your name: Melissa Wang                 #
-# Who you worked with:                    #
+#Group: Melissa Wang, Emma Sternquist, Audrey Thedford             #
 ###########################################
 
 def read_data_from_file(filename):
