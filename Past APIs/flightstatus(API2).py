@@ -9,7 +9,6 @@ import os
 import math
 import matplotlib.pyplot as plt
 
-<<<<<<< Updated upstream
 def read_data_from_file(filename):
     """
     Reads data from a file with the given filename.
@@ -27,7 +26,6 @@ def read_data_from_file(filename):
 
     url = ('https://api.traveltimeapp.com/v4/time-filter'
         'apiKey=8dd3b29c0e475934424a9f54446aee3f''appId=9955bc4d')
-=======
 
 ###########################################
 #Group: Melissa Wang, Emma Sternquist, Audrey Thedford             #
@@ -35,7 +33,6 @@ def read_data_from_file(filename):
 def read_data_from_file(filename):
 
     url = ('https://partners.api.skyscanner.net/apiservices/v3/flights/indicative/search')
->>>>>>> Stashed changes
     response = requests.get(url)
     print(response.json())
 
