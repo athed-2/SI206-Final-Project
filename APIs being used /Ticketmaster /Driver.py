@@ -3,6 +3,7 @@ import re
 import os
 import csv
 import sqlite3
+import json
 
 countries_by_economic_class = {
     'High Income': [
@@ -46,6 +47,33 @@ Graph income level of country to average travel advisory level
 Graph top 10 highest advisory level countries
 '''
 
+# def populateDatabase():
+#     for section in countries_by_economic_class.keys():
+#         for countryTuple in countries_by_economic_class[section]:
+#             countryName, isoCode = countryTuple
+#             countryDataApiUrl = "https://restcountries.com/v3.1/name/{}".format(countryName)
+#             gdpDataApiUrl = "https://api.api-ninjas.com/v1/country?name={}".format(countryName)
+#             riskDataApiUrl = "https://www.travel-advisory.info/api?countrycode={}".format(isoCode)
+#             countryDataResponse = requests.get(countryDataApiUrl)
+#             gdpDataResponse = requests.get(gdpDataApiUrl, headers=gdpHeaders)
+#             riskDataResponse = requests.get(riskDataApiUrl)
+#             if countryDataResponse.status_code != 200:
+#                 print("Country API didn't work. Check country name.", countryName)
+#                 return
+#             elif gdpDataResponse.status_code != 200:
+#                 print("GDP Data API didn't work. Check country name.", countryName)
+#                 return
+#             elif riskDataResponse.status_code != 200:
+#                 print("Risk Data API didn't work. Check ISO code.", countryName)
+#                 return
+#             else:
+#                 countryData = countryDataResponse.json()
+#                 print(countryData)
+#                 gdpData = gdpDataResponse.json()
+#                 riskData = riskDataResponse.json()
+#                 input(countryData[0]["population"])
+#     return
+
 def populateDatabase():
     for section in countries_by_economic_class.keys():
         for countryTuple in countries_by_economic_class[section]:
@@ -56,6 +84,13 @@ def populateDatabase():
             countryDataResponse = requests.get(countryDataApiUrl)
             gdpDataResponse = requests.get(gdpDataApiUrl, headers=gdpHeaders)
             riskDataResponse = requests.get(riskDataApiUrl)
+            
+            jsonCountryData = json.loads(riskDataApiUrl.content)
+            jsonGDP = json.loads(riskDataApiUrl.content)
+            jsonRiskData = json.loads(riskDataApiUrl.content)
+            
+
+
             if countryDataResponse.status_code != 200:
                 print("Country API didn't work. Check country name.", countryName)
                 return
