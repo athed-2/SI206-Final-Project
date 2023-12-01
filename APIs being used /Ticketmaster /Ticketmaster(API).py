@@ -35,7 +35,6 @@ def main():
     d = dict()
     for key in object['_embedded']['events']:
         print(key)
-
 main()
 #find and unique key to make primary key 
 #event id as the outermost key of a nested dictiornary, then have a dictornary with values....
