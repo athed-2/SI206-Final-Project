@@ -4,7 +4,6 @@ import os
 import csv
 import sqlite3
 import json
-
 countries_by_economic_class = {
     'High Income': [
         ('USA', 'US'), ('Germany', 'DE'), ('Japan', 'JP'), ('Canada', 'CA'),
@@ -38,7 +37,6 @@ countries_by_economic_class = {
 gdpHeaders = {
     "X-API-Key": "RuywgWptpkNtVLBd+a4iCA==Z7iNudr1RvBuFnmj",
 }
-
 '''
 https://restcountries.com/#endpoints-code - RESTCountries API (country data)
 https://api-ninjas.com/api/country - ApiNinja - Sign up and get API key (gets GDP)
@@ -47,32 +45,12 @@ Graph income level of country to average travel advisory level
 Graph top 10 highest advisory level countries
 '''
 
-# def populateDatabase():
-#     for section in countries_by_economic_class.keys():
-#         for countryTuple in countries_by_economic_class[section]:
-#             countryName, isoCode = countryTuple
-#             countryDataApiUrl = "https://restcountries.com/v3.1/name/{}".format(countryName)
-#             gdpDataApiUrl = "https://api.api-ninjas.com/v1/country?name={}".format(countryName)
-#             riskDataApiUrl = "https://www.travel-advisory.info/api?countrycode={}".format(isoCode)
-#             countryDataResponse = requests.get(countryDataApiUrl)
-#             gdpDataResponse = requests.get(gdpDataApiUrl, headers=gdpHeaders)
-#             riskDataResponse = requests.get(riskDataApiUrl)
-#             if countryDataResponse.status_code != 200:
-#                 print("Country API didn't work. Check country name.", countryName)
-#                 return
-#             elif gdpDataResponse.status_code != 200:
-#                 print("GDP Data API didn't work. Check country name.", countryName)
-#                 return
-#             elif riskDataResponse.status_code != 200:
-#                 print("Risk Data API didn't work. Check ISO code.", countryName)
-#                 return
-#             else:
-#                 countryData = countryDataResponse.json()
-#                 print(countryData)
-#                 gdpData = gdpDataResponse.json()
-#                 riskData = riskDataResponse.json()
-#                 input(countryData[0]["population"])
-#     return
+def setUpDatabase(db_name):
+    # Takes in database name (string) as input. Returns database cursor and connection as outputs.
+    path = os.path.dirname(os.path.abspath(__file__))
+    conn = sqlite3.connect(path+'/'+db_name)
+    cur = conn.cursor()
+    return cur, conn
 
 def populateDatabase():
     for section in countries_by_economic_class.keys():
@@ -89,8 +67,6 @@ def populateDatabase():
             jsonGDP = json.loads(riskDataApiUrl.content)
             jsonRiskData = json.loads(riskDataApiUrl.content)
             
-
-
             if countryDataResponse.status_code != 200:
                 print("Country API didn't work. Check country name.", countryName)
                 return
@@ -102,18 +78,19 @@ def populateDatabase():
                 return
             else:
                 countryData = countryDataResponse.json()
-                print(countryData)
                 gdpData = gdpDataResponse.json()
                 riskData = riskDataResponse.json()
-                input(countryData[0]["population"])
-    return
+    return countryData, gdpData, riskData
 
-def setUpDatabase(db_name):
-    # Takes in database name (string) as input. Returns database cursor and connection as outputs.
-    path = os.path.dirname(os.path.abspath(__file__))
-    conn = sqlite3.connect(path+'/'+db_name)
-    cur = conn.cursor()
-    return cur, conn
+def setUpCountryData(countryData, cur, conn):
+    cur.execute("CREATE TABLE IF NOT EXISTS CountryData (name UNIQUE PRIMARY KEY, population INTEGER, currency TEXT, language TEXT)")
+    countryName = countryData['common']
+    countryPopulation = countryData['population']
+    countryCurrency = countryData['currency']
+    countryLanguage = countryData['languge']
+
+    cur.execute('INSERT OR IGNORE INTO CountryData (name, population, currency, language) VALUES (?, ?, ?, ?)', (countryName, countryPopulation, countryCurrency, countryLanguage))
+    conn.commit()
 
 
 populateDatabase()
