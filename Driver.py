@@ -16,8 +16,7 @@ countries_by_economic_class = {
         ('Singapore', 'SG'), ('Norway', 'NO'), ('Denmark', 'DK'), ('Finland', 'FI'),
         ('Austria', 'AT'), ('Belgium', 'BE'), ('Ireland', 'IE'), ('New Zealand', 'NZ'),
         ('Luxembourg', 'LU'), ('Iceland', 'IS'), ('Cyprus', 'CY'), ('Malta', 'MT'),
-        ('Bahrain', 'BH'), ('Oman', 'OM'), ('Andorra', 'AD'), ('San Marino', 'SM'),
-        ('Monaco', 'MC'), ('Liechtenstein', 'LI')
+        ('Bahrain', 'BH')
     ],
     'Upper-Middle Income': [
         ('Brazil', 'BR'), ('China', 'CN'), ('Russia', 'RU'), ('South Africa', 'ZA'),
@@ -26,8 +25,7 @@ countries_by_economic_class = {
         ('Greece', 'GR'), ('Argentina', 'AR'), ('Colombia', 'CO'), ('Saudi Arabia', 'SA'),
         ('Qatar', 'QA'), ('Kuwait', 'KW'), ('United Arab Emirates', 'AE'), ('Israel', 'IL'),
         ('Portugal', 'PT'), ('Estonia', 'EE'), ('Latvia', 'LV'), ('Lithuania', 'LT'),
-        ('Slovenia', 'SI'), ('Croatia', 'HR'), ('Slovakia', 'SK'), ('Montenegro', 'ME'),
-        ('Albania', 'AL'), ('Serbia', 'RS')
+        ('Slovenia', 'SI')
     ],
     'Lower-Middle Income': [
         ('India', 'IN'), ('Indonesia', 'ID'), ('Philippines', 'PH'), ('Vietnam', 'VN'),
@@ -36,8 +34,7 @@ countries_by_economic_class = {
         ('Bulgaria', 'BG'), ('Romania', 'RO'), ('Morocco', 'MA'), ('Peru', 'PE'),
         ('Ecuador', 'EC'), ('Bolivia', 'BO'), ('Guatemala', 'GT'), ('El Salvador', 'SV'),
         ('Moldova', 'MD'), ('North Macedonia', 'MK'), ('Bosnia and Herzegovina', 'BA'),
-        ('Armenia', 'AM'), ('Azerbaijan', 'AZ'), ('Georgia', 'GE'), ('Mongolia', 'MN'),
-        ('Kazakhstan', 'KZ'), ('Uzbekistan', 'UZ'), ('Turkmenistan', 'TM'), ('Kiribati', 'KI')
+        ('Armenia', 'AM'), ('Azerbaijan', 'AZ')
     ],
     'Low Income': [
         ('Afghanistan', 'AF'), ('Haiti', 'HT'), ('Nepal', 'NP'), ('Madagascar', 'MG'),
@@ -46,8 +43,7 @@ countries_by_economic_class = {
         ('Sierra Leone', 'SL'), ('Burundi', 'BI'), ('Myanmar', 'MM'), ('South Sudan', 'SS'),
         ('Chad', 'TD'), ('Burkina Faso', 'BF'), ('Niger', 'NE'), ('Central African Republic', 'CF'),
         ('Eritrea', 'ER'), ('Somalia', 'SO'), ('Djibouti', 'DJ'), ('Comoros', 'KM'),
-        ('Timor-Leste', 'TL'), ('Papua New Guinea', 'PG'), ('Solomon Islands', 'SB'),
-        ('Vanuatu', 'VU'), ('Tuvalu', 'TV')
+        ('Timor-Leste', 'TL')
     ]
 }
 
@@ -87,56 +83,77 @@ def create_tables(cur):
             FOREIGN KEY (language_id) REFERENCES LanguageTable(id)
         )
     """)
-def populate_database(cur, conn):
-    create_tables(cur)
-    for section in countries_by_economic_class.keys():
-        for countryTuple in countries_by_economic_class[section]:
-            countryName, isoCode = countryTuple
-            countryDataApiUrl = "https://restcountries.com/v3.1/name/{}".format(countryName)
-            gdpDataApiUrl = "https://api.api-ninjas.com/v1/country?name={}".format(isoCode)
-            riskDataApiUrl = "https://www.travel-advisory.info/api?countrycode={}".format(isoCode)
-            countryDataResponse = requests.get(countryDataApiUrl)
-            gdpDataResponse = requests.get(gdpDataApiUrl, headers=gdpHeaders)
-            riskDataResponse = requests.get(riskDataApiUrl)
-            if countryDataResponse.status_code != 200:
-                print("Country API didn't work. Check country name.", countryName)
-                return
-            elif gdpDataResponse.status_code != 200:
-                print("GDP Data API didn't work. Check country name.", countryName)
-                return
-            elif riskDataResponse.status_code != 200:
-                print("Risk Data API didn't work. Check ISO code.", countryName)
-                return
-            else:
-                #each loop will only contain json of 1 coountry's data
-                countryData = countryDataResponse.json()
-                gdpData = gdpDataResponse.json()
-                riskData = riskDataResponse.json()
-                population = countryData[0]['population']
-                language = list(countryData[0]['languages'].keys())[0]
-                gdp = gdpData[0]['gdp']                    
-                riskScore = riskData['data'][isoCode]['advisory']['score']
-                print(countryName)
-                # Extracting language information
-                try:
-                    cur.execute("SELECT id FROM LanguageTable WHERE language_name = {}".format(language))
-                    language_row = cur.fetchone()
-                    language_id = language_row[0]
-                except:
-                    cur.execute("INSERT OR IGNORE INTO LanguageTable (language_name) VALUES (?)", (language,))
-                    language_id = cur.lastrowid
-                      
-                # Insert data into Country table with language_id
-                cur.execute("INSERT OR IGNORE INTO country_data (name, isoCode, gdp, population, language_id, risk_score, income_level) VALUES (?, ?, ?, ?, ?, ?, ?)", (countryName, isoCode, gdp, population, language_id, riskScore, INCOME_TO_ID[section]))
-                conn.commit()
 
-def calculate_risk(income_list, cur):
-    cur.execute("SELECT name, risk_score FROM country_data WHERE ")
+def populate_database(cur, conn, section):
+    index =  0
+    create_tables(cur)
+    for countryTuple in countries_by_economic_class[section]:
+        countryName, isoCode = countryTuple
+        countryDataApiUrl = "https://restcountries.com/v3.1/name/{}".format(countryName)
+        gdpDataApiUrl = "https://api.api-ninjas.com/v1/country?name={}".format(isoCode)
+        riskDataApiUrl = "https://www.travel-advisory.info/api?countrycode={}".format(isoCode)
+        countryDataResponse = requests.get(countryDataApiUrl)
+        gdpDataResponse = requests.get(gdpDataApiUrl, headers=gdpHeaders)
+        riskDataResponse = requests.get(riskDataApiUrl)
+        if countryDataResponse.status_code != 200:
+            print("Country API didn't work. Check country name.", countryName)
+            return
+        elif gdpDataResponse.status_code != 200:
+            print("GDP Data API didn't work. Check country name.", countryName)
+            return
+        elif riskDataResponse.status_code != 200:
+            print("Risk Data API didn't work. Check ISO code.", countryName)
+            return
+        else:
+
+            #each loop will only contain json of 1 coountry's data
+            countryData = countryDataResponse.json()
+            gdpData = gdpDataResponse.json()
+            riskData = riskDataResponse.json()
+            population = countryData[0]['population']
+            language = list(countryData[0]['languages'].keys())[0]
+            gdp = gdpData[0]['gdp']                    
+            riskScore = riskData['data'][isoCode]['advisory']['score']
+            print(countryName)
+            # Extracting language information
+            try:
+                cur.execute("SELECT id FROM LanguageTable WHERE language_name = {}".format(language))
+                language_row = cur.fetchone()
+                language_id = language_row[0]
+            except:
+                cur.execute("INSERT OR IGNORE INTO LanguageTable (language_name) VALUES (?)", (language,))
+                language_id = cur.lastrowid
+                    
+            # Insert data into Country table with language_id
+            cur.execute("INSERT OR IGNORE INTO country_data (name, isoCode, gdp, population, language_id, risk_score, income_level) VALUES (?, ?, ?, ?, ?, ?, ?)", (countryName, isoCode, gdp, population, language_id, riskScore, INCOME_TO_ID[section]))
+            index += 1
+            conn.commit()
+            if (index % 25 == 0):
+                print("Should be done section.")
+                return
+                
+def sanity_check():
+    for section in countries_by_economic_class.keys():
+        if len(countries_by_economic_class[section]) != 25:
+            print("ERROR!!!", section, len(countries_by_economic_class[section]))
+    print("SANITY CHECK PASSED.")
+    return
+
+
+
+def bar_graph_risk_score(cur, conn):
+    cur.execute("SELECT name, gdp, risk_score, risk_level FROM country_data WHERE risk_level == 'Very High Risk'")
+
 
 
 def main():
     cur, conn = set_up_database('final_data.db')
-    populate_database(cur,conn)
+    sanity_check()
+    for section in countries_by_economic_class.keys():
+        populate_database(cur,conn, section)
+    # defining_risk_level(cur, conn)
+    # bar_graph_risk_score(cur)
+
 
     
 
