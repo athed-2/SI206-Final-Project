@@ -1,12 +1,13 @@
 import requests
-import re
 import os
-import csv
 import sqlite3
-import json
+import matplotlib.pyplot as plt 
+import numpy as np
 
 
 INCOME_TO_ID = {"High Income":1, "Upper-Middle Income": 2, "Lower-Middle Income": 3, "Low Income":4}
+ID_TO_INCOME = {1:"High Income", 2:"Upper-Middle Income", 3:"Lower-Middle Income", 4:"Low Income"}
+
 
 countries_by_economic_class = {
     'High Income': [
@@ -84,9 +85,11 @@ def create_tables(cur):
         )
     """)
 
-def populate_database(cur, conn, section):
-    index =  0
+def populate_database(cur, conn):
     create_tables(cur)
+    cur.execute("SELECT COUNT (*) FROM country_data")
+    index = int(cur.fetchone()[0])
+    section = ID_TO_INCOME[index // 25 + 1]
     for countryTuple in countries_by_economic_class[section]:
         countryName, isoCode = countryTuple
         countryDataApiUrl = "https://restcountries.com/v3.1/name/{}".format(countryName)
@@ -105,7 +108,6 @@ def populate_database(cur, conn, section):
             print("Risk Data API didn't work. Check ISO code.", countryName)
             return
         else:
-
             #each loop will only contain json of 1 coountry's data
             countryData = countryDataResponse.json()
             gdpData = gdpDataResponse.json()
@@ -141,20 +143,10 @@ def sanity_check():
 
 
 
-def bar_graph_risk_score(cur, conn):
-    cur.execute("SELECT name, gdp, risk_score, risk_level FROM country_data WHERE risk_level == 'Very High Risk'")
-
-
-
 def main():
     cur, conn = set_up_database('final_data.db')
     sanity_check()
-    for section in countries_by_economic_class.keys():
-        populate_database(cur,conn, section)
-    # defining_risk_level(cur, conn)
-    # bar_graph_risk_score(cur)
+    populate_database(cur,conn)
 
-
-    
 
 main()
