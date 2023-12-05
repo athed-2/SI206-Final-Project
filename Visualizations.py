@@ -34,7 +34,6 @@ def calc_avg_risk_score_per_income_level(cur):
 #     for country in data:
 #         pass
 
-# Refugees, GDP, Travel Risk
 
 def get_risk_color(avg_risk_score):
     if avg_risk_score >= 4.5:
@@ -135,23 +134,63 @@ def bar_graph_pop_risk_score_by_income_lvl(cur, conn):
     plt.subplots_adjust(right=0.7)
     plt.show()
 
+def risk_level_avg_refugees(cur):
+    cur.execute("SELECT risk_score, AVG(num_refugees) FROM country_data GROUP BY risk_score") 
+    data = cur.fetchall()
+    risk_score = []
+    num_refugees = []
+
+    for tup in data:
+        risk_score.append(tup[0])
+        num_refugees.append(tup[1])
+
+    plt.bar(risk_score, num_refugees, label = "Num Refugees")
+    plt.xticks(risk_score)
+    plt.xlabel("Risk Scores")
+    plt.ylabel("Average Number of Refugees")
+    plt.title("Average Number of Refugees by Risk Scores")
+    plt.show()
+
+def risk_level_avg_gdp(cur):
+    cur.execute("SELECT risk_score, AVG(gdp) FROM country_data GROUP BY risk_score") 
+    data = cur.fetchall()
+    risk_score = []
+    gdp = []
+
+    for tup in data:
+        risk_score.append(tup[0])
+        gdp.append(tup[1])
+
+    plt.bar(risk_score, gdp, label = "GDP")
+    plt.xticks(risk_score)
+    plt.xlabel("Risk Scores")
+    plt.ylabel("Average GDP")
+    plt.title("Average GDP by Risk Scores")
+    plt.show()
+
+
+
+
 def main():
     path = os.path.dirname(os.path.abspath(__file__))
     conn = sqlite3.connect(path + '/'+ "final_data.db")
     cur = conn.cursor()
-    calc_avg_risk_score_per_income_level(cur)
-    calc_avg_population_per_income_level(cur)
-    bar_graph_risk_score(cur, conn)
-    bar_graph_pop_risk_score_by_income_lvl(cur,conn)
+    #calc_avg_risk_score_per_income_level(cur)
+    #calc_avg_population_per_income_level(cur)
+    #bar_graph_risk_score(cur, conn)
+    #bar_graph_pop_risk_score_by_income_lvl(cur,conn)
+    risk_level_avg_refugees(cur)
+    risk_level_avg_gdp(cur)
 
 
 main()
 
 #The number of refugees, to GDP, to travel risk
 #Determine which countries are in the extreme risk, high risk, medium risk, low risk 
-#Compare with average number of refugees
+#Compare with mean number of refugees
 #And average GDP 
 
 
-def risk_level_avg_gdp_avg_refugees(cur):
+
+
 
