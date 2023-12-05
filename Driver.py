@@ -69,6 +69,8 @@ def set_up_database(db_name):
 def create_tables(cur):
     # Create LanguageTable
     cur.execute("CREATE TABLE IF NOT EXISTS LanguageTable (id INTEGER PRIMARY KEY, language_name TEXT UNIQUE)")
+    # Create Income Class Table
+    cur.execute("CREATE TABLE IF NOT EXISTS IncomeClass (id INTEGER PRIMARY KEY, income_class TEXT UNIQUE)")
 
     # Create Country table with a foreign key reference to LanguageTable
     cur.execute("""
@@ -78,6 +80,7 @@ def create_tables(cur):
             isoCode TEXT UNIQUE,
             gdp NUMERIC,
             population INTEGER,
+            num_refugees NUMERIC,
             language_id INTEGER,
             risk_score NUMERIC,
             income_level NUMERIC,
@@ -93,7 +96,7 @@ def populate_database(cur, conn):
     for countryTuple in countries_by_economic_class[section]:
         countryName, isoCode = countryTuple
         countryDataApiUrl = "https://restcountries.com/v3.1/name/{}".format(countryName)
-        gdpDataApiUrl = "https://api.api-ninjas.com/v1/country?name={}".format(isoCode)
+        gdpDataApiUrl = "https://api.api-ninjas.com/v1/country?name={}".format(isoCode) 
         riskDataApiUrl = "https://www.travel-advisory.info/api?countrycode={}".format(isoCode)
         countryDataResponse = requests.get(countryDataApiUrl)
         gdpDataResponse = requests.get(gdpDataApiUrl, headers=gdpHeaders)
@@ -116,6 +119,7 @@ def populate_database(cur, conn):
             language = list(countryData[0]['languages'].keys())[0]
             gdp = gdpData[0]['gdp']                    
             riskScore = riskData['data'][isoCode]['advisory']['score']
+            refugees = gdpData[0]['refugees']
             print(countryName)
             # Extracting language information
             try:
@@ -125,9 +129,9 @@ def populate_database(cur, conn):
             except:
                 cur.execute("INSERT OR IGNORE INTO LanguageTable (language_name) VALUES (?)", (language,))
                 language_id = cur.lastrowid
-                    
+
             # Insert data into Country table with language_id
-            cur.execute("INSERT OR IGNORE INTO country_data (name, isoCode, gdp, population, language_id, risk_score, income_level) VALUES (?, ?, ?, ?, ?, ?, ?)", (countryName, isoCode, gdp, population, language_id, riskScore, INCOME_TO_ID[section]))
+            cur.execute("INSERT OR IGNORE INTO country_data (name, isoCode, gdp, population, num_refugees, language_id, risk_score, income_level) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", (countryName, isoCode, gdp, population, refugees, language_id, riskScore, INCOME_TO_ID[section]))
             index += 1
             conn.commit()
             if (index % 25 == 0):
@@ -140,8 +144,6 @@ def sanity_check():
             print("ERROR!!!", section, len(countries_by_economic_class[section]))
     print("SANITY CHECK PASSED.")
     return
-
-
 
 def main():
     cur, conn = set_up_database('final_data.db')

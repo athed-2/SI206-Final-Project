@@ -35,6 +35,18 @@ def calc_avg_risk_score_per_income_level(cur):
 #     for country in data:
 #         pass
 
+# Refugees, GDP, Travel Risk
+
+def get_color(avg_risk_score):
+    if avg_risk_score >= 4.5:
+        return "red"
+    elif 3.5 <= avg_risk_score < 4.5:
+        return "orange"
+    elif 2.5 <= avg_risk_score < 3.5:
+        return "yellow"
+    elif 0 <= avg_risk_score < 2.5:
+        return "green"
+
 def bar_graph_risk_score(cur, conn):
     avg_risk_scores = calc_avg_risk_score_per_income_level(cur) #returns a list of the calc avg of risk_score from each income_level
     cur.execute("SELECT DISTINCT income_level from country_data")
@@ -42,13 +54,20 @@ def bar_graph_risk_score(cur, conn):
     income_level_num = []
     for tup in income_level:
         income_level_num.append(int(tup[0]))
-# creating the bar plot
+
+    colors = [get_color(score) for score in avg_risk_scores]
+    # Creating the bar plot
     fig, ax = plt.subplots()
-    ax.bar(income_level_num, avg_risk_scores) 
+    bars = ax.bar(income_level_num, avg_risk_scores, color=colors)
+
+    # Adding color legend
+    legend_labels = ["0-2.5 (Safe)", "2.5-3.5 (Medium Risk)", "3.5-4.5 (High Risk)", "4.5-5 (Extreme Warning)"]
+    legend = ax.legend(bars, legend_labels, loc = "upper left", bbox_to_anchor=(1, 1), title="Risk Category")
     ax.set_xticks(income_level_num)
     ax.set_xlabel("Income Level")
     ax.set_ylabel("Average Advisory Risk Score")
     ax.set_title("Average Advisory Risk Score to Country Income Level")
+    plt.subplots_adjust(right=0.7)
     plt.show()
 
 def main():
