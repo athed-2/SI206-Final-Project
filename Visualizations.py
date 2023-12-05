@@ -78,3 +78,11 @@ def main():
     bar_graph_risk_score(cur, conn)
 
 main()
+
+#The number of refugees, to GDP, to travel risk
+#Determine which countries are in the extreme risk, high risk, medium risk, low risk 
+#Compare with average number of refugees
+#And average GDP 
+
+def risk_level_avg_gdp_avg_refugees(cur):
+    
