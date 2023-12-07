@@ -98,38 +98,45 @@ def calc_avg_population_per_income_level(cur):
 
             coutries_in_lvl_4 += 1
 
-    avg_pop_one = lvl_one_total_pop/coutries_in_lvl_1
-    avg_pop_two = lvl_two_total_pop/coutries_in_lvl_2
-    avg_pop_three = lvl_three_total_pop/coutries_in_lvl_3
-    avg_pop_four = lvl_four_total_pop/coutries_in_lvl_4
+    avg_pop_one = (lvl_one_total_pop/coutries_in_lvl_1)/1000000
+    avg_pop_two = (lvl_two_total_pop/coutries_in_lvl_2)/1000000
+    avg_pop_three = (lvl_three_total_pop/coutries_in_lvl_3)/1000000
+    avg_pop_four = (lvl_four_total_pop/coutries_in_lvl_4)/1000000
   
     
 #Found average pop and risk score by income level 
     #print((avg_pop_one,round(avg_risk_score_one,3)),(avg_pop_two,round(avg_risk_score_two,3)),(avg_pop_three,round(avg_risk_score_three,3)),(avg_pop_four,round(avg_risk_score_four,3)))
     return (avg_pop_one, avg_pop_two,avg_pop_three, avg_pop_four)
 
-def bar_graph_pop_risk_score_by_income_lvl(cur, conn):
+def get_pop_color(avg_populations):
+    if avg_populations < 38:
+        return "blue"
+    elif 38 <= avg_populations < 42:
+        return "green"
+    else:
+        return "purple"
+
+def bar_graph_pop_by_income_lvl(cur, conn):
     avg_populations = calc_avg_population_per_income_level(cur) #returns a list of the calc avg of population from each income_level
-    avg_risk_scores = calc_avg_risk_score_per_income_level(cur) #return a list of risk sore by income level 
     cur.execute("SELECT DISTINCT income_level from country_data")
     income_level = cur.fetchall()
     income_level_num = []
     for tup in income_level:
         income_level_num.append(int(tup[0]))
 
-    #colors = [get_risk_color(score) for score in avg_risk_scores]
-    # Creating the bar plot
+    colors = [get_pop_color(pop) for pop in avg_populations]
+    
     fig, ax = plt.subplots()
-    bars = ax.bar(income_level_num, avg_populations)
+    bars = ax.bar(income_level_num, avg_populations, color=colors)
+    #Legend
+    colors = {'<38 (Below Average)':'blue', '39-42 (Average)':'green', '>43 (Above Average)':'purple'}         
+    labels = list(colors.keys())
+    handles = [plt.Rectangle((0,0),1,1, color=colors[label]) for label in labels]
+    plt.legend(handles, labels,loc = "upper left", bbox_to_anchor=(1, 1), title="Comparison to Global Average of 40 million")
 
-    # Adding color legend
-   # legend_labels = ["0-2.5 (Safe)", "2.5-3.5 (Medium Risk)", "3.5-4.5 (High Risk)", "4.5-5 (Extreme Warning)"]
-  #  legend = ax.legend(bars, legend_labels, loc = "upper left", bbox_to_anchor=(1, 1), title="Risk Category")
     ax.set_xticks(income_level_num)
-    #ax.set_yticks(40000000,60000000,80000000,100000000)
-
     ax.set_xlabel("Income Level")
-    ax.set_ylabel("Average Population")
+    ax.set_ylabel("Average Population in millions")
     ax.set_title("Average Population to Country Income Level")
     plt.subplots_adjust(right=0.7)
     plt.show()
@@ -176,11 +183,11 @@ def main():
     conn = sqlite3.connect(path + '/'+ "final_data.db")
     cur = conn.cursor()
     #calc_avg_risk_score_per_income_level(cur)
-    #calc_avg_population_per_income_level(cur)
+    calc_avg_population_per_income_level(cur)
     #bar_graph_risk_score(cur, conn)
-    #bar_graph_pop_risk_score_by_income_lvl(cur,conn)
-    risk_level_avg_refugees(cur)
-    risk_level_avg_gdp(cur)
+    bar_graph_pop_by_income_lvl(cur,conn)
+    #risk_level_avg_refugees(cur)
+    #risk_level_avg_gdp(cur)
 
 
 main()
