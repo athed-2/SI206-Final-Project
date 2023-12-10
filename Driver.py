@@ -69,6 +69,7 @@ def set_up_database(db_name):
 def create_tables(cur):
     # Create LanguageTable
     cur.execute("CREATE TABLE IF NOT EXISTS LanguageTable (id INTEGER PRIMARY KEY, language_name TEXT UNIQUE)")
+
     # Create Income Class Table
     cur.execute("CREATE TABLE IF NOT EXISTS IncomeClass (id INTEGER PRIMARY KEY, income_class TEXT UNIQUE)")
 
@@ -116,10 +117,11 @@ def populate_database(cur, conn):
             gdpData = gdpDataResponse.json()
             riskData = riskDataResponse.json()
             population = countryData[0]['population']
-            language = list(countryData[0]['languages'].keys())[0]
+            language = list(countryData[0]['languages'].values())[0]
             gdp = gdpData[0]['gdp']                    
             riskScore = riskData['data'][isoCode]['advisory']['score']
             refugees = gdpData[0]['refugees']
+            income_level = 0
             print(countryName)
             # Extracting language information
             try:
@@ -137,6 +139,12 @@ def populate_database(cur, conn):
             if (index % 25 == 0):
                 print("Should be done section.")
                 return
+    
+def populate_income_level(cur,conn):
+    for id, income_class in ID_TO_INCOME.items():
+        cur.execute("INSERT OR IGNORE INTO IncomeClass (id, income_class) VALUES (?, ?)", (id, income_class))
+        conn.commit()
+    
                 
 def sanity_check():
     for section in countries_by_economic_class.keys():
@@ -149,6 +157,7 @@ def main():
     cur, conn = set_up_database('final_data.db')
     sanity_check()
     populate_database(cur,conn)
+    populate_income_level(cur,conn)
 
 
 main()
