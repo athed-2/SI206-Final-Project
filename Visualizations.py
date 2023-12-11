@@ -37,13 +37,9 @@ def calc_avg_risk_score_per_language(cur):
         GROUP BY LanguageTable.language_name
     """
     cur.execute(query)
-
-    # Fetch all data
     data = cur.fetchall()
- 
     # Create a dictionary to store language-wise average risk scores
     avg_scores = {language_name: avg_risk_score for language_name, avg_risk_score in data}
-    print(avg_scores)
 
     return avg_scores
 
@@ -51,14 +47,14 @@ def get_color(avg_risk_score):
     if avg_risk_score >= 4.5:
         return "red"
     elif 3.5 <= avg_risk_score < 4.5:
-        return "orange"
-    elif 2.5 <= avg_risk_score < 3.5:
         return "yellow"
+    elif 2.5 <= avg_risk_score < 3.5:
+        return "blue" 
     elif 0 <= avg_risk_score < 2.5:
         return "green"
 
 def bar_graph_risk_score(cur, conn):
-    avg_risk_scores = calc_avg_risk_score_per_income_level(cur) #returns a list of the calc avg of risk_score from each income_level
+    avg_risk_scores = calc_avg_risk_score_per_income_level(cur)  # returns a list of the calc avg of risk_score from each income_level
     cur.execute("SELECT DISTINCT country_data.income_level, IncomeClass.income_class FROM country_data JOIN IncomeClass ON country_data.income_level = IncomeClass.id")
     conn.commit()
     income_level = cur.fetchall()
@@ -73,7 +69,11 @@ def bar_graph_risk_score(cur, conn):
 
     # Adding color legend
     legend_labels = ["0-2.5 (Safe)", "2.5-3.5 (Medium Risk)", "3.5-4.5 (High Risk)", "4.5-5 (Extreme Warning)"]
-    legend = ax.legend(bars, legend_labels, loc = "upper left", bbox_to_anchor=(1, 1), title="Risk Category")
+    legend_colors = ["green", "blue", "yellow", "red"]  # Match colors with the get_color function
+    legend = ax.legend(bars, legend_labels, loc="upper left", bbox_to_anchor=(1, 1), title="Risk Category")
+    for i in range(len(legend.legendHandles)):
+        legend.legendHandles[i].set_color(legend_colors[i])
+
     ax.set_xticks(income_class)
     ax.set_xlabel("Income Level")
     ax.set_ylabel("Average Advisory Risk Score")
@@ -90,16 +90,12 @@ def plot_top_10_languages_with_lowest_risk_scores(cur):
 
     # Extract language names and corresponding average risk scores
     languages, avg_scores = zip(*top_10_languages)
-
-    # Create a bar graph
     plt.figure(figsize=(10, 6))
     plt.barh(languages, avg_scores, color='skyblue')
     plt.xlabel('Average Risk Score')
     plt.ylabel('Language')
     plt.title('Top 10 Languages with Lowest Average Risk Scores')
     plt.tight_layout()
-
-    # Show the plot
     plt.show()
 
 def calc_avg_population_per_income_level(cur):
@@ -152,28 +148,41 @@ def get_pop_color(avg_populations):
 
 def bar_graph_pop_by_income_lvl(cur, conn):
     avg_populations = calc_avg_population_per_income_level(cur) #returns a list of the calc avg of population from each income_level
-    cur.execute("SELECT DISTINCT income_level from country_data")
+    cur.execute("SELECT DISTINCT country_data.income_level, IncomeClass.income_class FROM country_data JOIN IncomeClass ON country_data.income_level = IncomeClass.id")
+    conn.commit()
     income_level = cur.fetchall()
-    income_level_num = []
+    income_class = []
     for tup in income_level:
-        income_level_num.append(int(tup[0]))
-
+        income_class.append(tup[1])
     colors = [get_pop_color(pop) for pop in avg_populations]
     
     fig, ax = plt.subplots()
-    bars = ax.bar(income_level_num, avg_populations, color=colors)
+    bars = ax.bar(income_class, avg_populations, color=colors)
     #Legend
     colors = {'<38 (Below Average)':'blue', '39-42 (Average)':'green', '>43 (Above Average)':'purple'}         
     labels = list(colors.keys())
     handles = [plt.Rectangle((0,0),1,1, color=colors[label]) for label in labels]
     plt.legend(handles, labels,loc = "upper left", bbox_to_anchor=(1, 1), title="Comparison to Global Average of 40 million")
 
-    ax.set_xticks(income_level_num)
+    ax.set_xticks(income_class)
     ax.set_xlabel("Income Level")
     ax.set_ylabel("Average Population in millions")
     ax.set_title("Average Population to Country Income Level")
     plt.subplots_adjust(right=0.7)
     plt.show()
+
+
+def get_color_for_risk_score(score):
+    if score >= 0 and score <= 2.5:
+        return 'green'
+    elif score > 2.5 and score <= 3.5:
+        return 'yellow'
+    elif score > 3.5 and score <= 4.5:
+        return 'orange'
+    elif score > 4.5 and score <= 5:
+        return 'red'
+    else:
+        return 'black'  # Default color if not in any range
 
 def risk_level_avg_refugees(cur):
     cur.execute("SELECT risk_score, AVG(num_refugees) FROM country_data GROUP BY risk_score") 
@@ -185,11 +194,13 @@ def risk_level_avg_refugees(cur):
         risk_score.append(tup[0])
         num_refugees.append(tup[1])
 
-    plt.bar(risk_score, num_refugees, label = "Num Refugees")
-    plt.xticks(risk_score)
+    colors = [get_color_for_risk_score(score) for score in risk_score]
+
+    plt.scatter(risk_score, num_refugees, c=colors, label="Num Refugees")
     plt.xlabel("Risk Scores")
     plt.ylabel("Average Number of Refugees")
     plt.title("Average Number of Refugees by Risk Scores")
+    plt.legend()
     plt.show()
 
 def risk_level_avg_gdp(cur):
@@ -202,13 +213,14 @@ def risk_level_avg_gdp(cur):
         risk_score.append(tup[0])
         gdp.append(tup[1])
 
-    plt.bar(risk_score, gdp, label = "GDP")
-    plt.xticks(risk_score)
+    colors = [get_color_for_risk_score(score) for score in risk_score]
+
+    plt.scatter(risk_score, gdp, c=colors, label="GDP")
     plt.xlabel("Risk Scores")
     plt.ylabel("Average GDP")
     plt.title("Average GDP by Risk Scores")
+    plt.legend()
     plt.show()
-
 
 
 
