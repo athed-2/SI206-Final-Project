@@ -77,7 +77,6 @@ def bar_graph_risk_score(cur, conn):
 
 
 
-
 #Group By: Join Table. then Group by language.
 def calc_avg_risk_score_per_language(cur):
     # Select relevant columns and group by language_name

@@ -3,6 +3,10 @@ import os
 import sqlite3
 import matplotlib.pyplot as plt 
 
+def write_txt(data,filename):
+    with open(filename, "w") as file:
+        file.write(data)
+
 def get_color_for_risk_score(score):
     if score >= 0 and score <= 2.5:
         return 'green'
@@ -13,7 +17,7 @@ def get_color_for_risk_score(score):
     elif score > 4.5 and score <= 5:
         return 'red'
     else:
-        return 'black'  # Default color if not in any range
+        return 'black' 
 
 def risk_level_avg_refugees(cur):
     cur.execute("SELECT risk_score, AVG(num_refugees) FROM country_data GROUP BY risk_score") 
@@ -34,6 +38,14 @@ def risk_level_avg_refugees(cur):
     plt.legend()
     plt.show()
 
+   
+    content = "Risk Score, Average Number of Refugees\n"
+    for score, avg_refugees in zip(risk_score, num_refugees):
+        content += f"{score}, {avg_refugees}\n"
+
+    write_txt(content, 'risk_level_avg_refugees.txt')
+
+
 def risk_level_avg_gdp(cur):
     cur.execute("SELECT risk_score, AVG(gdp) FROM country_data GROUP BY risk_score") 
     data = cur.fetchall()
@@ -53,6 +65,11 @@ def risk_level_avg_gdp(cur):
     plt.legend()
     plt.show()
 
+    content = "Risk Score, Average GDP\n"
+    for score, avg_gdp in zip(risk_score, gdp):
+        content += f"{score}, {avg_gdp}\n"
+
+    write_txt(content, 'risk_level_avg_gdp.txt')
 
 def main():
     path = os.path.dirname(os.path.abspath(__file__))
@@ -63,9 +80,6 @@ def main():
 
 main()
 
-#The number of refugees, to GDP, to travel risk
-#Determine which countries are in the extreme risk, high risk, medium risk, low risk 
-#Compare with mean number of refugees
-#And average GDP 
+
 
 
