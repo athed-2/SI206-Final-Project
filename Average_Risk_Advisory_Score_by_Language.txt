@@ -1,0 +1,47 @@
+Average Risk Score Per Language:
+======================================================================================
+
+Avg risk score for Afrikaans: 3.2
+Avg risk score for Arabic: 3.5
+Avg risk score for Armenian: 3.3
+Avg risk score for Aymara: 3.3
+Avg risk score for Azerbaijani: 3.25
+Avg risk score for Bengali: 3.0999999999999996
+Avg risk score for Bosnian: 3.5
+Avg risk score for Bulgarian: 2.8
+Avg risk score for Burmese: 4.25
+Avg risk score for Czech: 3.1
+Avg risk score for Danish: 3.6
+Avg risk score for Dari: 4.0
+Avg risk score for Dutch: 3.3
+Avg risk score for English: 2.7
+Avg risk score for Estonian: 2.6
+Avg risk score for Finnish: 3.0
+Avg risk score for French: 2.65
+Avg risk score for German: 3.0
+Avg risk score for Greek: 3.0
+Avg risk score for Guaraní: 3.2
+Avg risk score for Hungarian: 2.8
+Avg risk score for Icelandic: 2.8
+Avg risk score for Indonesian: 3.4
+Avg risk score for Italian: 3.0
+Avg risk score for Japanese: 2.8
+Avg risk score for Korean: 2.3
+Avg risk score for Kyrgyz: 2.75
+Avg risk score for Latvian: 3.0
+Avg risk score for Lithuanian: 2.6
+Avg risk score for Macedonian: 2.55
+Avg risk score for Nepali: 3.25
+Avg risk score for Norwegian Nynorsk: 2.8
+Avg risk score for Polish: 2.8
+Avg risk score for Portuguese: 3.3
+Avg risk score for Romanian: 3.2
+Avg risk score for Russian: 3.7
+Avg risk score for Sinhala: 3.1
+Avg risk score for Slovene: 3.0
+Avg risk score for Spanish: 3.3
+Avg risk score for Swedish: 3.5
+Avg risk score for Thai: 2.5
+Avg risk score for Turkish: 3.0
+Avg risk score for Ukrainian: 4.0
+Avg risk score for Vietnamese: 2.7

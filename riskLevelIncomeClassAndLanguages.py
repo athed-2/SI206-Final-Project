@@ -3,6 +3,11 @@ import os
 import sqlite3
 import matplotlib.pyplot as plt 
 
+
+def write_txt(data, filename):
+    with open(filename,"w") as file:
+        file.write(data)
+
 def calc_avg_risk_score_per_income_level(cur):
     lvl_one_total = 0
     lvl_two_total = 0
@@ -24,24 +29,13 @@ def calc_avg_risk_score_per_income_level(cur):
         avg_two = lvl_two_total/25
         avg_three = lvl_three_total/25
         avg_four = lvl_four_total/25
-
+    results = "Average Risk Score Per Income Level:\n"
+    results += "======================================================================================\n\n"
+    results += f'Avg risk score for High Income: {avg_one}\nAvg risk score for Upper-Middle Income: {avg_two}\nAvg risk score for Lower-Middle Income: {avg_three}\nAvg risk score for Low Income: {avg_four}'
+    
+    write_txt(results, 'Average_Risk_Advisory_Score_by_Income_Level.txt')
     return [round(avg_one,3), round(avg_two,3), round(avg_three,3), round(avg_four,3)]
 
-#Group By: Join Table. then Group by language.
-def calc_avg_risk_score_per_language(cur):
-    # Select relevant columns and group by language_name
-    query = """
-        SELECT LanguageTable.language_name, AVG(country_data.risk_score) as avg_risk_score
-        FROM country_data
-        JOIN LanguageTable ON country_data.language_id = LanguageTable.id
-        GROUP BY LanguageTable.language_name
-    """
-    cur.execute(query)
-    data = cur.fetchall()
-    # Create a dictionary to store language-wise average risk scores
-    avg_scores = {language_name: avg_risk_score for language_name, avg_risk_score in data}
-
-    return avg_scores
 
 def get_color(avg_risk_score):
     if avg_risk_score >= 4.5:
@@ -80,6 +74,34 @@ def bar_graph_risk_score(cur, conn):
     ax.set_title("Average Advisory Risk Score to Country Income Level")
     plt.subplots_adjust(right=0.7)
     plt.show()
+
+
+
+
+#Group By: Join Table. then Group by language.
+def calc_avg_risk_score_per_language(cur):
+    # Select relevant columns and group by language_name
+    query = """
+        SELECT LanguageTable.language_name, AVG(country_data.risk_score) as avg_risk_score
+        FROM country_data
+        JOIN LanguageTable ON country_data.language_id = LanguageTable.id
+        GROUP BY LanguageTable.language_name
+    """
+    cur.execute(query)
+    data = cur.fetchall()
+    # Create a dictionary to store language-wise average risk scores
+    avg_scores = {language_name: avg_risk_score for language_name, avg_risk_score in data}
+     
+    results = "Average Risk Score Per Language:\n"
+    results += "======================================================================================\n\n"
+    
+    for language_name, avg_risk_score in avg_scores.items():
+        results += f'Avg risk score for {language_name}: {avg_risk_score}\n'
+    
+    write_txt(results, 'Average_Risk_Advisory_Score_by_Language.txt')
+
+    return avg_scores
+
 
 def plot_top_10_languages_with_lowest_risk_scores(cur):
     # Calculate average risk scores per language

@@ -1,0 +1,7 @@
+Average Risk Score Per Language:
+======================================================================================
+
+Avg risk score for High Income: 2.944
+Avg risk score for Upper-Middle Income: 3.1439999999999997
+Avg risk score for Lower-Middle Income: 3.2879999999999994
+Avg risk score for Low Income: 3.7640000000000002

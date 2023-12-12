@@ -6,8 +6,10 @@ import matplotlib.pyplot as plt
 
 def write_txt(data, filename):
     with open(filename,"w") as file:
+        file.write("Average Country Population By Income Level:\n")
+        file.write("======================================================================================\n\n")
         file.write(data)
-        file.close()
+        
 def calc_avg_population_per_income_level(cur):
     lvl_one_total_pop = 0
     lvl_two_total_pop = 0
@@ -42,9 +44,10 @@ def calc_avg_population_per_income_level(cur):
     avg_pop_two = (lvl_two_total_pop/coutries_in_lvl_2)/1000000
     avg_pop_three = (lvl_three_total_pop/coutries_in_lvl_3)/1000000
     avg_pop_four = (lvl_four_total_pop/coutries_in_lvl_4)/1000000
-    results = f'Average population of incoome level 1:{avg_pop_one},Average population of incoome level 2:{avg_pop_two},Average population of incoome level 3:{avg_pop_three},Average population of incoome level 4:{avg_pop_four}'
+
+    results = f'Avg population of High Income: {avg_pop_one}\nAvg population of Upper-Middle Income: {avg_pop_two}\nAvg population of Lower-Middle Income: {avg_pop_three}\nAvg pop of Low Income: {avg_pop_four}'
     
-    write_txt(results,'Average Country Population by Income Level')
+    write_txt(results,'Average_Country_Population_by_Income_Level')
     return (avg_pop_one, avg_pop_two,avg_pop_three, avg_pop_four)
 
 def get_pop_color(avg_populations):
