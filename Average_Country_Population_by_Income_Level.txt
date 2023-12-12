@@ -1,7 +1,0 @@
-Average Country Population By Income Level:
-======================================================================================
-
-Avg population of High Income: 40.13965668 million
-Avg population of Upper-Middle Income: 39.84223872 million
-Avg population of Lower-Middle Income: 59.808219439999995 million
-Avg population of Low Income: 16.04797664 million
