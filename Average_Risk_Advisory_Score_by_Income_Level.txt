@@ -1,4 +1,4 @@
-Average Risk Score Per Language:
+Average Risk Score Per Income Level:
 ======================================================================================
 
 Avg risk score for High Income: 2.944
