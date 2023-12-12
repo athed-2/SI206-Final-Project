@@ -110,12 +110,6 @@ def main():
 
 main()
 
-#The number of refugees, to GDP, to travel risk
-#Determine which countries are in the extreme risk, high risk, medium risk, low risk 
-#Compare with mean number of refugees
-#And average GDP 
-
-
 
 
 
