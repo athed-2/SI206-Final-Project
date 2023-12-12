@@ -45,9 +45,9 @@ def calc_avg_population_per_income_level(cur):
     avg_pop_three = (lvl_three_total_pop/coutries_in_lvl_3)/1000000
     avg_pop_four = (lvl_four_total_pop/coutries_in_lvl_4)/1000000
 
-    results = f'Avg population of High Income: {avg_pop_one}\nAvg population of Upper-Middle Income: {avg_pop_two}\nAvg population of Lower-Middle Income: {avg_pop_three}\nAvg pop of Low Income: {avg_pop_four}'
+    results = f'Avg population of High Income: {avg_pop_one} million\nAvg population of Upper-Middle Income: {avg_pop_two} million\nAvg population of Lower-Middle Income: {avg_pop_three} million\nAvg population of Low Income: {avg_pop_four} million'
     
-    write_txt(results,'Average_Country_Population_by_Income_Level')
+    write_txt(results,'Average_Country_Population_by_Income_Level.txt')
     return (avg_pop_one, avg_pop_two,avg_pop_three, avg_pop_four)
 
 def get_pop_color(avg_populations):
